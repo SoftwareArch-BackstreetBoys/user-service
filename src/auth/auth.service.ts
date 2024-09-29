@@ -1,4 +1,102 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { eq } from 'drizzle-orm';
+import { CookieOptions } from 'express';
+import { Response } from 'express';
+import { DRIZZLE } from 'src/drizzle/drizzle.module';
+import { users } from 'src/drizzle/schema';
+import { GoogleUser } from 'src/interfaces/auth.interfaces';
+import { User } from 'src/interfaces/user.interfaces';
+import { DrizzeDB } from 'src/types/drizzle';
 
 @Injectable()
-export class AuthService {}
+export class AuthService {
+  constructor(
+    private jwtService: JwtService,
+    @Inject(DRIZZLE) private db: DrizzeDB,
+  ) {}
+  async signInWithGoogle(
+    user: GoogleUser,
+    res: Response,
+  ): Promise<{
+    encodedUser: string;
+  }> {
+    if (!user) throw new BadRequestException('Unauthenticated');
+
+    let existingUser = await this.findUserByEmail(user.email);
+
+    if (!existingUser) existingUser = await this.registerGoogleUser(res, user);
+
+    const encodedUser = await this.encodeUserDataAsJwt(existingUser);
+
+    this.setJwtTokenToCookies(res, existingUser);
+
+    return {
+      encodedUser,
+    };
+  }
+  private async findUserByEmail(email: string) {
+    const user = await this.db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (!user) return null;
+    return user;
+  }
+  private async registerGoogleUser(res: Response, user: GoogleUser) {
+    try {
+      const fullName =
+        !user.firstName && !user.lastName
+          ? user.email
+          : `${user.lastName || ''} ${user.firstName || ''}`.trim();
+
+      const newUser = await this.db
+        .insert(users)
+        .values({
+          email: user.email,
+          fullName,
+          picture: user.picture,
+        })
+        .returning();
+
+      return newUser[0];
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
+  private async encodeUserDataAsJwt(user: User) {
+    // even though we did not define a password on our user's schema
+    // we extract it from the user in case we will have it on the future
+    const userData = { ...user, password: undefined };
+
+    return await this.jwtService.signAsync(userData, { expiresIn: '7d' });
+  }
+
+  setJwtTokenToCookies(res: Response, user: User) {
+    const expirationDateInMilliseconds =
+      new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
+    const cookieOptions: CookieOptions = {
+      httpOnly: true, // this ensures that the cookie cannot be accessed through JavaScript!
+      secure: process.env.NODE_ENV === 'production', // this ensures that the cookie is only sent over HTTPS in production
+      expires: new Date(expirationDateInMilliseconds),
+    };
+
+    res.cookie(
+      'jwt',
+      this.jwtService.sign({
+        id: user.id,
+        sub: {
+          email: user.email,
+        },
+      }),
+      cookieOptions,
+    );
+  }
+}

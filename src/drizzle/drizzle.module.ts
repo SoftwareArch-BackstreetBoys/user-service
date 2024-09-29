@@ -12,7 +12,7 @@ export const DRIZZLE = Symbol('drizzle-connection');
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const databaseUrl = configService.get('DATABASE_URL');
-        const pool = new Pool({ connectionString: databaseUrl, ssl: true });
+        const pool = new Pool({ connectionString: databaseUrl, ssl: false });
         return drizzle(pool, { schema });
       },
     },

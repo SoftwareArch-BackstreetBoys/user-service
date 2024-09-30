@@ -28,7 +28,11 @@ export class AuthService {
     encodedUser: string;
   }> {
     if (!user) throw new BadRequestException('Unauthenticated');
+    const studentIdRegex =
+      /^\d{2}[013478]\d{5}(?:01|02|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|51|53|55|56|58|63|92|99)+@student\.chula\.ac\.th$/gm;
 
+    if (!studentIdRegex.test(user.email))
+      throw new BadRequestException('Not a Chula Student Email');
     let existingUser = await this.findUserByEmail(user.email);
 
     if (!existingUser) existingUser = await this.registerGoogleUser(res, user);
@@ -76,7 +80,7 @@ export class AuthService {
     // we extract it from the user in case we will have it on the future
     const userData = { ...user, password: undefined };
 
-    return await this.jwtService.signAsync(userData, { expiresIn: '7d' });
+    return await this.jwtService.signAsync(userData, { expiresIn: '3d' });
   }
 
   setJwtTokenToCookies(res: Response, user: User) {

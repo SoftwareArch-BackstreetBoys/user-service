@@ -8,6 +8,48 @@
       "when": 1727520585450,
       "tag": "0000_smart_micromacro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1727700025376,
+      "tag": "0001_foamy_robin_chapel",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1727700178219,
+      "tag": "0002_silent_ikaris",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1727700824117,
+      "tag": "0003_shallow_nightshade",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1727703056275,
+      "tag": "0004_dusty_satana",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1727703283588,
+      "tag": "0005_talented_annihilus",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1727895418729,
+      "tag": "0006_secret_tarot",
+      "breakpoints": true
     }
   ]
 }

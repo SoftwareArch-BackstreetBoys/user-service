@@ -26,6 +26,7 @@ export class AuthController {
       req.user as GoogleUser,
       res,
     );
+    // TODO
     return res.redirect(
       `${process.env.GOOGLE_REDIRECT_URL_CLIENT}?path=${path}&jwtUser=${encodedUser}`,
     );

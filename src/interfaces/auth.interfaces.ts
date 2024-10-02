@@ -1,4 +1,5 @@
 export interface GoogleUser {
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
@@ -11,5 +12,7 @@ export interface UserFromJwt {
   id: string;
   sub: {
     email: string;
+    fullName: string;
+    picture: string;
   };
 }

@@ -55,14 +55,12 @@ export class AuthService {
   }
   private async registerGoogleUser(res: Response, user: GoogleUser) {
     try {
-      const fullName =
-        !user.firstName && !user.lastName
-          ? user.email
-          : `${user.lastName || ''} ${user.firstName || ''}`.trim();
+      const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
 
       const newUser = await this.db
         .insert(users)
         .values({
+          id: user.id,
           email: user.email,
           fullName,
           picture: user.picture,
@@ -91,7 +89,7 @@ export class AuthService {
       secure: process.env.NODE_ENV === 'production', // this ensures that the cookie is only sent over HTTPS in production
       expires: new Date(expirationDateInMilliseconds),
     };
-
+    // TODO
     res.cookie(
       'jwt',
       this.jwtService.sign({

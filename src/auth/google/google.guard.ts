@@ -5,10 +5,10 @@ import { AuthGuard } from '@nestjs/passport';
 export class GoogleOAuthGuard extends AuthGuard('google') {
   getAuthenticateOptions(context: ExecutionContext) {
     // get the path out of the query parameters
-    const { path } = context.switchToHttp().getRequest().query;
+    const { callbackUrl } = context.switchToHttp().getRequest().query;
 
     // create a JSON object with all of the state that needs to be persisted during the OAuth flow
-    const json: string = JSON.stringify({ path });
+    const json: string = JSON.stringify({ callbackUrl });
 
     // stringify the state, and base64-encode it
     // alternatively, this state object can be persisted to a cache, and the cache key sent as the state

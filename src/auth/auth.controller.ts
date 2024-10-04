@@ -20,15 +20,17 @@ export class AuthController {
 
     // if we had used a cache to store the state, here we can pull the state out from the cache using the key received in the state
     // parse it back into a JSON object
-    const { path }: { path: string } = JSON.parse(json) as { path: string };
+    const { callbackUrl } = JSON.parse(json) as {
+      callbackUrl: string;
+    };
 
     const { encodedUser } = await this.authService.signInWithGoogle(
       req.user as GoogleUser,
       res,
     );
-    // TODO
+
     return res.redirect(
-      `${process.env.GOOGLE_REDIRECT_URL_CLIENT}?path=${path}&jwtUser=${encodedUser}`,
+      `${callbackUrl ? callbackUrl : process.env.GOOGLE_REDIRECT_URL_CLIENT}?jwtUser=${encodedUser}`,
     );
   }
 

@@ -41,7 +41,7 @@ export class AuthService {
 
   setJwtTokenToCookies(res: Response, user: User) {
     const expirationDateInMilliseconds =
-      new Date().getTime() + 7 * 24 * 60 * 60 * 1000;
+      new Date().getTime() + 3 * 24 * 60 * 60 * 1000;
     const cookieOptions: CookieOptions = {
       httpOnly: true, // this ensures that the cookie cannot be accessed through JavaScript!
       secure: process.env.NODE_ENV === 'production', // this ensures that the cookie is only sent over HTTPS in production

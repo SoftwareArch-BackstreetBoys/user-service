@@ -50,6 +50,13 @@
       "when": 1727895418729,
       "tag": "0006_secret_tarot",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1728029377270,
+      "tag": "0007_bent_sway",
+      "breakpoints": true
     }
   ]
 }

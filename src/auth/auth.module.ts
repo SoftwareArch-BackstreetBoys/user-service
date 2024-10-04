@@ -6,7 +6,6 @@ import { GoogleStrategy } from './google/google.stategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './jwt/jwt.strategy';
-import { DrizzleModule } from 'src/drizzle/drizzle.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { DrizzleModule } from 'src/drizzle/drizzle.module';
       inject: [ConfigService],
       global: true,
     }),
-    DrizzleModule,
   ],
   providers: [AuthService, GoogleStrategy, JwtStrategy],
   controllers: [AuthController],

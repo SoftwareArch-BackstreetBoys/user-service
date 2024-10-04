@@ -1,25 +1,16 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { eq } from 'drizzle-orm';
 import { CookieOptions } from 'express';
 import { Response } from 'express';
-import { DRIZZLE } from 'src/drizzle/drizzle.module';
-import { users } from 'src/drizzle/schema';
 import { GoogleUser } from 'src/interfaces/auth.interfaces';
 import { User } from 'src/interfaces/user.interfaces';
-import { DrizzeDB } from 'src/types/drizzle';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    @Inject(DRIZZLE) private db: DrizzeDB,
+    private usersService: UsersService,
   ) {}
   async signInWithGoogle(
     user: GoogleUser,
@@ -28,14 +19,8 @@ export class AuthService {
     encodedUser: string;
   }> {
     if (!user) throw new BadRequestException('Unauthenticated');
-    const studentIdRegex =
-      /^\d{2}[013478]\d{5}(?:01|02|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|51|53|55|56|58|63|92|99)+@student\.chula\.ac\.th$/gm;
 
-    if (!studentIdRegex.test(user.email))
-      throw new BadRequestException('Not a Chula Student Email');
-    let existingUser = await this.findUserByEmail(user.email);
-
-    if (!existingUser) existingUser = await this.registerGoogleUser(res, user);
+    const existingUser = await this.usersService.registerGoogleUser(user);
 
     const encodedUser = await this.encodeUserDataAsJwt(existingUser);
 
@@ -45,34 +30,7 @@ export class AuthService {
       encodedUser,
     };
   }
-  private async findUserByEmail(email: string) {
-    const user = await this.db.query.users.findFirst({
-      where: eq(users.email, email),
-    });
 
-    if (!user) return null;
-    return user;
-  }
-  private async registerGoogleUser(res: Response, user: GoogleUser) {
-    try {
-      const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-
-      const newUser = await this.db
-        .insert(users)
-        .values({
-          id: user.id,
-          email: user.email,
-          fullName,
-          picture: user.picture,
-        })
-        .returning();
-
-      return newUser[0];
-    } catch (error) {
-      Logger.error(error);
-      throw new InternalServerErrorException();
-    }
-  }
   private async encodeUserDataAsJwt(user: User) {
     // even though we did not define a password on our user's schema
     // we extract it from the user in case we will have it on the future
@@ -89,13 +47,15 @@ export class AuthService {
       secure: process.env.NODE_ENV === 'production', // this ensures that the cookie is only sent over HTTPS in production
       expires: new Date(expirationDateInMilliseconds),
     };
-    // TODO
+
     res.cookie(
       'jwt',
       this.jwtService.sign({
         id: user.id,
         sub: {
           email: user.email,
+          fullName: user.fullName,
+          picture: user.picture,
         },
       }),
       cookieOptions,

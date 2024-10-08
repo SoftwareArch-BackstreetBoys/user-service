@@ -6,6 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
+import * as moment from 'moment';
 import { DRIZZLE } from 'src/drizzle/drizzle.module';
 import { users } from 'src/drizzle/schema';
 import { GoogleUser } from 'src/interfaces/auth.interfaces';
@@ -34,7 +35,7 @@ export class UsersService {
       if (!this.studentIdRegex.test(user.email))
         throw new BadRequestException('Not a Chula Student Email');
       const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-
+      const date = moment().add(7, 'hours').toDate();
       const newUser = await this.db
         .insert(users)
         .values({
@@ -45,9 +46,8 @@ export class UsersService {
         })
         .onConflictDoUpdate({
           target: [users.id],
-          set: {
-            picture: user.picture,
-          },
+          // @ts-expect-error: Unreachable code error
+          set: { picture: user.picture, lastLogin: date },
         })
         .returning();
 

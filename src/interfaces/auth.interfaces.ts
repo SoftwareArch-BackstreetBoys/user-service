@@ -15,4 +15,5 @@ export interface UserFromJwt {
     fullName: string;
     picture: string;
   };
+  iat: number;
 }

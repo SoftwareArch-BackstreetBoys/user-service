@@ -9,7 +9,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req) => req?.cookies?.['jwt'] || null, // extract the cookies from the request
       ]),
-      ignoreExpiration: true, // if the cookie is expired, an exception will be thrown
+      ignoreExpiration: false, // if the cookie is expired, an exception will be thrown
       secretOrKey: process.env.JWT_SECRET, // the JWT Secret that will be used to check the integrity and authenticity of the token
     });
   }

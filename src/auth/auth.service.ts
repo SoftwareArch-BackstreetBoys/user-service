@@ -39,13 +39,14 @@ export class AuthService {
     return await this.jwtService.signAsync(userData, { expiresIn: '3d' });
   }
 
-  setJwtTokenToCookies(res: Response, user: User) {
+  private setJwtTokenToCookies(res: Response, user: User) {
     const expirationDateInMilliseconds =
       new Date().getTime() + 3 * 24 * 60 * 60 * 1000;
     const cookieOptions: CookieOptions = {
       httpOnly: true, // this ensures that the cookie cannot be accessed through JavaScript!
       secure: process.env.NODE_ENV === 'production', // this ensures that the cookie is only sent over HTTPS in production
       expires: new Date(expirationDateInMilliseconds),
+      sameSite: 'lax',
     };
 
     res.cookie(

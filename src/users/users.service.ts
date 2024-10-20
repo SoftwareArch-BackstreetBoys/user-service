@@ -16,6 +16,7 @@ import { DrizzeDB } from 'src/types/drizzle';
 export class UsersService {
   constructor(@Inject(DRIZZLE) private db: DrizzeDB) {}
 
+  // Not in use
   private readonly studentIdRegex =
     /^\d{2}[013478]\d{5}(?:01|02|20|21|22|23|24|25|26|27|28|29|30|31|32|33|34|35|36|37|38|39|40|51|53|55|56|58|63|92|99)+@student\.chula\.ac\.th$/gm;
 
@@ -32,7 +33,7 @@ export class UsersService {
 
   async registerGoogleUser(user: GoogleUser) {
     try {
-      if (!this.studentIdRegex.test(user.email))
+      if (!user.email.endsWith('@student.chula.ac.th'))
         throw new BadRequestException('Not a Chula Student Email');
       const fullName = `${user.firstName || ''} ${user.lastName || ''}`.trim();
       const date = moment().add(7, 'hours').toDate();
@@ -47,14 +48,14 @@ export class UsersService {
         .onConflictDoUpdate({
           target: [users.id],
           // @ts-expect-error: Unreachable code error
-          set: { picture: user.picture, lastLogin: date },
+          set: { lastLogin: date },
         })
         .returning();
 
       return newUser[0];
     } catch (error) {
       Logger.error(error);
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

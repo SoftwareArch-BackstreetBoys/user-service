@@ -31,6 +31,14 @@ export class UsersService {
     return user ? user : null;
   }
 
+  async findUserById(id: string) {
+    const user = await this.db.query.users.findFirst({
+      where: eq(users.id, id),
+    });
+
+    return user ? user : null;
+  }
+
   async registerGoogleUser(user: GoogleUser) {
     try {
       if (!user.email.endsWith('@student.chula.ac.th'))

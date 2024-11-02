@@ -47,12 +47,6 @@ export class AuthController {
   }
 
   @UseGuards(JwtGuard)
-  @Get('protected-route')
-  async protectedAuthRoute() {
-    return 'I am protected';
-  }
-
-  @UseGuards(JwtGuard)
   @Get('logout')
   async logout(@Res() res: Response) {
     res.clearCookie('jwt');

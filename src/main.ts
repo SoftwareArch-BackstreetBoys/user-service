@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.use(cookieParser());
   app.enableCors({
-    origin: [process.env.GOOGLE_REDIRECT_URL_CLIENT],
+    origin: [process.env.CLIENT_URL],
     credentials: true,
   });
   await app.listen(process.env.PORT || 5000);

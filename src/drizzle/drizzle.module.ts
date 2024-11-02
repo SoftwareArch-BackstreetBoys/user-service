@@ -15,7 +15,7 @@ export const DRIZZLE = Symbol('drizzle-connection');
         const databaseUrl = configService.get('DATABASE_URL');
         const pool = new Pool({
           connectionString: databaseUrl,
-          ssl: { rejectUnauthorized: false },
+          ssl: false,
         });
         return drizzle(pool, { schema });
       },
@@ -23,4 +23,4 @@ export const DRIZZLE = Symbol('drizzle-connection');
   ],
   exports: [DRIZZLE],
 })
-export class DrizzleModule {}
+export class DrizzleModule { }

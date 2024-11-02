@@ -31,7 +31,7 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "drizzle-kit": "^0.27.1",
-    "drizzle-orm": "^0.33.0",
+    "drizzle-orm": "^0.36.0",
     "moment": "^2.30.1",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",

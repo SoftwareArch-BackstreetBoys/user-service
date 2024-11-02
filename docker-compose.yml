@@ -8,33 +8,5 @@ services:
     restart: always
     ports:
       - '5000:5000'
-    networks:
-      - shared-network
     env_file:
       - .env
-    environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-    depends_on:
-      - postgres
-
-  postgres:
-    container_name: postgres
-    image: postgres:13
-    restart: always
-    ports:
-      - '5432:5432'
-    networks:
-      - shared-network
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-userdb}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-networks:
-  shared-network:
-    driver: bridge
-
-volumes:
-  postgres_data:

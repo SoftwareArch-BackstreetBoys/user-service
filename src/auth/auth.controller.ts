@@ -1,13 +1,25 @@
-import { Controller, Get, Query, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { GoogleOAuthGuard } from './google/google.guard';
 import { JwtGuard } from './jwt/jwt.guard';
 import { GoogleUser } from 'src/interfaces/auth.interfaces';
+import { HttpService } from '@nestjs/axios';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly httpService: HttpService,
+  ) {}
 
   @UseGuards(GoogleOAuthGuard)
   @Get('login')
@@ -37,6 +49,44 @@ export class AuthController {
       return res.redirect(
         `${process.env.GOOGLE_REDIRECT_URL_CLIENT}?error=${error.message}`,
       );
+    }
+  }
+
+  @Get('login/callback')
+  async googleAuthCallback(
+    @Res() res: Response,
+    @Query('token') token: string,
+  ) {
+    try {
+      const userinfo: any = await this.httpService.axiosRef.get(
+        `https://www.googleapis.com/oauth2/v1/userinfo`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      // console.log(token, userinfo.data);
+
+      const { encodedUser } = await this.authService.signInWithGoogle(
+        {
+          id: userinfo.data.id,
+          email: userinfo.data.email,
+          firstName: userinfo.data.given_name,
+          lastName: userinfo.data.family_name,
+          picture: userinfo.data.picture,
+          accessToken: token,
+          refreshToken: '',
+        } as GoogleUser,
+        res,
+      );
+
+      return res.json({ token: encodedUser });
+    } catch (error) {
+      console.error(error.message);
+
+      throw new BadRequestException();
     }
   }
 
